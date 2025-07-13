@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Générateur de QR Code</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #f5f7fa, #c3cfe2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-top: 30px;
+      color: #333;
+      font-size: 2em;
+      animation: slideIn 1s ease forwards;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+      margin-top: 20px;
+      animation: fadeIn 2s ease;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 20px;
+      font-size: 1em;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      transition: 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #007bff;
+      transform: scale(1.02);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      font-size: 1em;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+
+    #qrcode {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🔳 Générateur de QR Code</h1>
+  <div class="container">
+    <input type="text" id="qrText" placeholder="Entrez votre texte ou lien ici" />
+    <button onclick="generateQR()">Générer le QR Code</button>
+    <div id="qrcode"></div>
+    <button id="downloadBtn" style="display:none; margin-top:20px;" onclick="downloadQR()">Télécharger le QR</button>
+  </div>
+
+  <!-- Bibliothèque QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script>
+    let qr;
+
+    function generateQR() {
+      const text = document.getElementById("qrText").value.trim();
+      if (!text) return alert("Veuillez entrer un texte !");
+      if (!qr) {
+        qr = new QRious({
+          element: document.createElement('canvas'),
+          size: 250,
+          value: text
+        });
+        document.getElementById("qrcode").appendChild(qr.element);
+      } else {
+        qr.value = text;
+      }
+      document.getElementById("downloadBtn").style.display = "block";
+    }
+
+    function downloadQR() {
+      const link = document.createElement('a');
+      link.download = 'qr_code.png';
+      link.href = qr.toDataURL();
+      link.click();
+    }
+  </script>
+</body>
+</html>
