@@ -4,11 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QR Code Intelligent</title>
+
   <style>
+    /* Style global du body */
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #f5f7fa, #c3cfe2);
+      background: linear-gradient(to bottom, #f5f7fa, #c3cfe2); /* fond dégradé clair */
       color: #333;
       display: flex;
       flex-direction: column;
@@ -16,24 +18,27 @@
       justify-content: flex-start;
       min-height: 100vh;
       padding: 20px;
-      transition: background 0.5s ease;
+      transition: background 0.5s ease; /* transition douce si changement de thème */
     }
 
+    /* Titre principal */
     h1 {
       margin-top: 30px;
       font-size: 2em;
     }
 
+    /* Conteneur principal avec fond blanc */
     .container {
       background: white;
       padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      border-radius: 16px; /* coins arrondis */
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* ombre douce */
       max-width: 500px;
       width: 100%;
       margin-top: 20px;
     }
 
+    /* Champ de texte */
     input[type="text"] {
       width: 100%;
       padding: 15px;
@@ -43,6 +48,7 @@
       border-radius: 10px;
     }
 
+    /* Boutons */
     button {
       width: 100%;
       padding: 15px;
@@ -55,25 +61,28 @@
       transition: 0.3s;
     }
 
+    /* Effet au survol des boutons */
     button:hover {
       background-color: #0056b3;
     }
 
+    /* Zone d'affichage du QR code */
     #qrcode {
       margin-top: 20px;
       display: flex;
       justify-content: center;
     }
 
+    /* Mode sombre détecté automatiquement */
     @media (prefers-color-scheme: dark) {
       body {
-        background: #1a1a1a;
+        background: #1a1a1a; /* fond sombre */
         color: white;
       }
 
       .container {
         background: #2a2a2a;
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.05); /* ombre légère en mode sombre */
       }
 
       input[type="text"] {
@@ -84,58 +93,76 @@
     }
   </style>
 </head>
+
 <body>
+  <!-- Titre principal de la page -->
   <h1>🔳 Générateur QR auto-adaptatif</h1>
+
+  <!-- Boîte contenant les éléments de saisie et résultats -->
   <div class="container">
+    <!-- Champ où l’utilisateur entre le texte ou lien à convertir -->
     <input type="text" id="qrText" placeholder="Entrez votre texte ou lien ici" />
+
+    <!-- Bouton pour générer le QR code -->
     <button onclick="generateQR()">Générer le QR Code</button>
+
+    <!-- Zone où le QR code sera affiché -->
     <div id="qrcode"></div>
+
+    <!-- Bouton pour télécharger le QR code en PNG -->
     <button id="downloadBtn" style="display:none; margin-top:20px;" onclick="downloadQR()">Télécharger le QR</button>
   </div>
 
-  <!-- QRious pour générer les QR -->
+  <!-- Inclusion de la bibliothèque QRious (QR code avec canvas) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-  <script>
-    let qr;
 
+  <script>
+    let qr; // variable globale pour stocker le QR code
+
+    // Fonction qui retourne "white" ou "black" selon le thème du navigateur
     function getThemeColor() {
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "white" : "black";
     }
 
+    // Fonction appelée quand l'utilisateur clique sur "Générer le QR Code"
     function generateQR() {
-      const text = document.getElementById("qrText").value.trim();
-      if (!text) return alert("Veuillez entrer un texte !");
+      const text = document.getElementById("qrText").value.trim(); // récupère le texte
+      if (!text) return alert("Veuillez entrer un texte !"); // vérifie si vide
 
-      const color = getThemeColor();
+      const color = getThemeColor(); // détermine la bonne couleur du QR (blanc ou noir)
 
       if (!qr) {
+        // Si le QR n’existe pas encore, on le crée
         qr = new QRious({
-          element: document.createElement('canvas'),
-          size: 250,
-          background: 'transparent',
-          foreground: color,
-          value: text
+          element: document.createElement('canvas'), // crée un canvas
+          size: 250,                // taille du QR
+          background: 'transparent', // fond transparent
+          foreground: color,        // couleur selon thème
+          value: text               // contenu
         });
-        document.getElementById("qrcode").appendChild(qr.element);
+        document.getElementById("qrcode").appendChild(qr.element); // on l’ajoute à la page
       } else {
+        // Si déjà généré, on met à jour le contenu et la couleur
         qr.foreground = color;
         qr.value = text;
       }
 
+      // Affiche le bouton de téléchargement une fois le QR généré
       document.getElementById("downloadBtn").style.display = "block";
     }
 
+    // Fonction appelée pour télécharger le QR code
     function downloadQR() {
-      const link = document.createElement('a');
-      link.download = 'qr_code.png';
-      link.href = qr.toDataURL();
-      link.click();
+      const link = document.createElement('a'); // crée un lien invisible
+      link.download = 'qr_code.png';            // nom du fichier
+      link.href = qr.toDataURL();               // convertit en image base64
+      link.click();                             // simule le clic pour télécharger
     }
 
-    // Réagir au changement de thème (live)
+    // Écoute le changement de thème en temps réel (ex : l’utilisateur change son thème Windows)
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
       if (qr && qr.value) {
-        generateQR(); // Régénère avec la nouvelle couleur
+        generateQR(); // régénère le QR avec la bonne couleur si thème change
       }
     });
   </script>
